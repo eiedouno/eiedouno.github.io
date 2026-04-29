@@ -1,36 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>eiedouno</title>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet"/>
-<style>
+    <head>
+	<meta charset="UTF-8"/>
+	<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+	<title>eiedouno</title>
+	<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet"/>
+	<style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --navy:#050d1a;--navy2:#0a1628;--navy3:#0f1f38;
-  --cyan:#00e5ff;--cyan2:#00b8cc;--cyan3:rgba(0,229,255,0.12);--cyan4:rgba(0,229,255,0.05);
-  --text:#cce8f4;--muted:#5a8199;
-  --mono:'JetBrains Mono',monospace;--sans:'Syne',sans-serif;
+    --navy:#03080f;--navy2:#0a1628;--navy3:#0f1f38;
+    --cyan:#00e5ff;--cyan2:#00b8cc;--cyan3:rgba(0,229,255,0.12);--cyan4:rgba(0,229,255,0.05);
+    --text:#cce8f4;--muted:#5a8199;
+    --mono:'JetBrains Mono',monospace;--sans:'Syne',sans-serif;
 }
 html{scroll-behavior:smooth}
 body{background:var(--navy);color:var(--text);font-family:var(--mono);font-size:15px;line-height:1.7;overflow-x:hidden}
 ::-webkit-scrollbar{width:4px}
 ::-webkit-scrollbar-track{background:var(--navy2)}
 ::-webkit-scrollbar-thumb{background:var(--cyan2);border-radius:2px}
-@keyframes blink{
-  0%, 49% { opacity:1 }
-  50%, 100% { opacity:0 }
-}
+
+/* ── ANIMATIONS ── */
+@keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}
 @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
 @keyframes scanline{to{left:200%}}
 @keyframes glitchA{0%{opacity:1;transform:translate(-3px,1px) skewX(-2deg)}50%{transform:translate(3px,-1px) skewX(2deg)}100%{opacity:0;transform:translate(0)}}
 @keyframes glitchB{0%{opacity:1;transform:translate(3px,-2px)}50%{transform:translate(-3px,2px)}100%{opacity:0;transform:translate(0)}}
 
-/* ── INTRO BG (separate from the name) ── */
+/* ── DYNAMIC BORDER HIGHLIGHT ── */
+/* This creates the 'light' effect that follows the cursor but only on borders */
+.skill-group, .project-card, .contact-link, .stat {
+    position: relative;
+    border: 1px solid transparent !important; /* Make standard border transparent to let gradient show through */
+    /* Layer 1: Solid navy background (clipped to content) */
+    /* Layer 2: The radial 'light' gradient (clipped to the border) */
+    background: 
+        linear-gradient(var(--navy2), var(--navy2)) padding-box, 
+        radial-gradient(
+            circle at var(--mouse-x, -999px) var(--mouse-y, -999px), 
+            rgba(0, 229, 255, 0.8) 0%, 
+            transparent 120px
+        ) border-box !important;
+    transition: transform 0.35s cubic-bezier(0.16,1,0.3,1);
+}
+
+/* Adds a subtle 'glow' behind the card when the cursor is near */
+.skill-group::after, .project-card::after, .contact-link::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    z-index: -1;
+    background: radial-gradient(
+        circle at var(--mouse-x, -999px) var(--mouse-y, -999px), 
+        rgba(0, 229, 255, 0.12), 
+        transparent 200px
+    );
+    opacity: 0;
+    transition: opacity 0.5s;
+}
+.skill-group:hover::after, .project-card:hover::after, .contact-link:hover::after {
+    opacity: 1;
+}
+
+/* ── INTRO BG ── */
 #intro-bg{
-  position:fixed;inset:0;z-index:1000;background:var(--navy);
-  display:flex;flex-direction:column;justify-content:center;padding:3rem;
+    position:fixed;inset:0;z-index:1000;background:var(--navy);
+    display:flex;flex-direction:column;justify-content:center;padding:3rem;
 }
 #intro-lines{font-family:var(--mono);font-size:0.78rem;color:var(--muted);line-height:2.4}
 #intro-lines .line{display:block;opacity:0;transform:translateX(-8px);transition:opacity 0.3s,transform 0.9s}
@@ -39,48 +73,44 @@ body{background:var(--navy);color:var(--text);font-family:var(--mono);font-size:
 #intro-lines .line .dim{color:rgba(90,129,153,0.3)}
 #intro-bar{position:absolute;bottom:0;left:0;height:2px;background:var(--cyan);width:0}
 
-/* ── THE ONE NAME ── */
-/* Only typographic properties here — position is set inline so removeAttribute('style') clears it cleanly */
+/* ── THE NAME ── */
 #the-name{
-  font-family:var(--sans);
-  font-size:clamp(3rem,9vw,6rem);
-  font-weight:800;
-  line-height:0.95;
-  letter-spacing:-0.02em;
+    font-family:var(--sans);
+    font-size:clamp(3rem,9vw,6rem);
+    font-weight:800;
+    line-height:0.95;
+    letter-spacing:-0.02em;
 }
 #the-name .accent{color:var(--cyan)}
 .typed-cursor{
-  display:inline-block;width:4px;height:0.8em;
-  background:var(--cyan);opacity:0;vertical-align:middle;margin-left:3px;
-  animation:blink 0.9s step-end infinite;
-  animation-delay:3s;animation-fill-mode:forwards;
+    display:inline-block;width:4px;height:0.8em;
+    background:var(--cyan);opacity:0;vertical-align:middle;margin-left:3px;
+    animation:blink 0.9s step-end infinite;
+    animation-delay:3s;animation-fill-mode:forwards;
 }
-/* Glitch clones — work in both fixed and relative context */
 .glitch-a,.glitch-b{
-  position:absolute;top:0;left:0;opacity:0;
-  font-family:var(--sans);font-size:inherit;font-weight:800;
-  line-height:inherit;letter-spacing:inherit;
-  pointer-events:none;white-space:nowrap;
+    position:absolute;top:0;left:0;opacity:0;
+    font-family:var(--sans);font-size:inherit;font-weight:800;
+    line-height:inherit;letter-spacing:inherit;
+    pointer-events:none;white-space:nowrap;
 }
 .glitch-a{color:rgba(255,0,80,0.6);clip-path:inset(20% 0 40% 0)}
 .glitch-b{color:rgba(0,229,255,0.5);clip-path:inset(55% 0 10% 0)}
-/* In-hero mode — overrides the inline positional styles that got cleared */
 #the-name.in-hero{
-  position:relative;
-  white-space:normal;
-  cursor:default;
-  margin-bottom:1.5rem;
+    position:relative;
+    white-space:normal;
+    cursor:default;
+    margin-bottom:1.5rem;
 }
 #the-name.in-hero:hover .glitch-a{animation:glitchA 0.4s steps(2) forwards}
 #the-name.in-hero:hover .glitch-b{animation:glitchB 0.4s steps(2) forwards}
 
-/* Hero slot — invisible placeholder that reserves the name's space in hero */
 #hero-slot{
-  display:block;
-  font-family:var(--sans);font-size:clamp(3rem,9vw,6rem);font-weight:800;
-  line-height:0.95;letter-spacing:-0.02em;
-  visibility:hidden;margin-bottom:1.5rem;
-  white-space:nowrap;
+    display:block;
+    font-family:var(--sans);font-size:clamp(3rem,9vw,6rem);font-weight:800;
+    line-height:0.95;letter-spacing:-0.02em;
+    visibility:hidden;margin-bottom:1.5rem;
+    white-space:nowrap;
 }
 #hero-slot .accent{color:var(--cyan)}
 
@@ -90,12 +120,12 @@ body{background:var(--navy);color:var(--text);font-family:var(--mono);font-size:
 
 /* NAV */
 nav{
-  position:fixed;top:0;left:0;right:0;z-index:100;
-  display:flex;justify-content:space-between;align-items:center;
-  padding:1.25rem 3rem;
-  background:rgba(5,13,26,0.85);backdrop-filter:blur(12px);
-  border-bottom:1px solid rgba(0,229,255,0.08);
-  transform:translateY(-100%);transition:transform 0.6s cubic-bezier(0.16,1,0.3,1);
+    position:fixed;top:0;left:0;right:0;z-index:100;
+    display:flex;justify-content:space-between;align-items:center;
+    padding:1.25rem 3rem;
+    background:rgba(5,13,26,0.85);backdrop-filter:blur(12px);
+    border-bottom:1px solid rgba(0,229,255,0.08);
+    transform:translateY(-100%);transition:transform 0.6s cubic-bezier(0.16,1,0.3,1);
 }
 nav.show{transform:none}
 .nav-logo{font-weight:700;font-size:1rem;color:var(--cyan);letter-spacing:0.05em;text-decoration:none}
@@ -107,53 +137,53 @@ nav ul a:hover{color:var(--cyan)}
 /* HERO */
 #hero{min-height:100vh;display:flex;align-items:center;padding:0 3rem;position:relative;overflow:hidden}
 .hero-grid-bg{
-  position:absolute;inset:0;
-  background-image:linear-gradient(rgba(0,229,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,0.03) 1px,transparent 1px);
-  background-size:48px 48px;pointer-events:none;
-  opacity:0;transition:opacity 1.5s ease;
+    position:absolute;inset:0;
+    background-image:linear-gradient(rgba(0,229,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,0.03) 1px,transparent 1px);
+    background-size:48px 48px;pointer-events:none;
+    opacity:0;transition:opacity 1.5s ease;
 }
 .hero-glow{
-  position:absolute;top:15%;left:55%;width:600px;height:600px;
-  background:radial-gradient(circle,rgba(0,229,255,0.07) 0%,transparent 70%);
-  pointer-events:none;animation:pulse 7s ease-in-out infinite;
-  opacity:0;transition:opacity 2s ease;
+    position:absolute;top:15%;left:55%;width:600px;height:600px;
+    background:radial-gradient(circle,rgba(0,229,255,0.07) 0%,transparent 70%);
+    pointer-events:none;animation:pulse 7s ease-in-out infinite;
+    opacity:0;transition:opacity 2s ease;
 }
 .hero-grid-bg.show,.hero-glow.show{opacity:1}
 .hero-content{position:relative;z-index:1;max-width:760px}
 .hero-tag{
-  display:inline-block;font-size:0.72rem;letter-spacing:0.18em;text-transform:uppercase;
-  color:var(--cyan);border:1px solid rgba(0,229,255,0.3);
-  padding:0.3rem 0.9rem;border-radius:2px;margin-bottom:2rem;
-  clip-path:inset(0 100% 0 0);transition:clip-path 0.7s cubic-bezier(0.16,1,0.3,1);
+    display:inline-block;font-size:0.72rem;letter-spacing:0.18em;text-transform:uppercase;
+    color:var(--cyan);border:1px solid rgba(0,229,255,0.3);
+    padding:0.3rem 0.9rem;border-radius:2px;margin-bottom:2rem;
+    clip-path:inset(0 100% 0 0);transition:clip-path 0.7s cubic-bezier(0.16,1,0.3,1);
 }
 .hero-tag.show{clip-path:inset(0 0% 0 0)}
 .hero-desc{
-  font-size:0.88rem;color:var(--muted);max-width:480px;margin-bottom:2.5rem;
-  opacity:0;transform:translateY(16px);transition:opacity 0.7s ease,transform 0.7s ease;
+    font-size:0.88rem;color:var(--muted);max-width:480px;margin-bottom:2.5rem;
+    opacity:0;transform:translateY(16px);transition:opacity 0.7s ease,transform 0.7s ease;
 }
 .hero-desc.show{opacity:1;transform:none}
 .hero-cta{
-  display:inline-flex;align-items:center;gap:0.6rem;
-  background:transparent;border:1px solid var(--cyan);color:var(--cyan);
-  padding:0.75rem 1.75rem;font-family:var(--mono);font-size:0.82rem;
-  letter-spacing:0.08em;text-decoration:none;
-  opacity:0;transform:translateY(16px);
-  transition:opacity 0.7s 0.1s ease,transform 0.7s 0.1s ease,background 0.25s,color 0.25s;
+    display:inline-flex;align-items:center;gap:0.6rem;
+    background:transparent;border:1px solid var(--cyan);color:var(--cyan);
+    padding:0.75rem 1.75rem;font-family:var(--mono);font-size:0.82rem;
+    letter-spacing:0.08em;text-decoration:none;
+    opacity:0;transform:translateY(16px);
+    transition:opacity 0.7s 0.1s ease,transform 0.7s 0.1s ease,background 0.25s,color 0.25s;
 }
 .hero-cta:hover{background:var(--cyan);color:var(--navy);transform:translateY(-2px)!important}
 .hero-cta.show{opacity:1;transform:translateY(0)}
 .hero-scroll{
-  position:absolute;bottom:2.5rem;left:3rem;
-  font-size:0.7rem;letter-spacing:0.15em;text-transform:uppercase;
-  color:var(--muted);display:flex;align-items:center;gap:0.75rem;
-  opacity:0;transition:opacity 1s 0.35s ease;
+    position:absolute;bottom:2.5rem;left:3rem;
+    font-size:0.7rem;letter-spacing:0.15em;text-transform:uppercase;
+    color:var(--muted);display:flex;align-items:center;gap:0.75rem;
+    opacity:0;transition:opacity 1s 0.35s ease;
 }
 .hero-scroll.show{opacity:1}
 .scroll-line{width:40px;height:1px;background:var(--muted);position:relative;overflow:hidden}
 .scroll-line::after{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:var(--cyan);animation:scanline 2s ease-in-out infinite}
 
 /* SECTIONS */
-section{padding:6rem 3rem;position:relative}
+section{padding:6rem 3rem;position:relative; z-index: 2;}
 .section-label{font-size:0.72rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--cyan);margin-bottom:0.5rem;display:flex;align-items:center;gap:0.75rem}
 .section-label::before{content:'';display:block;width:24px;height:1px;background:var(--cyan)}
 .section-title{font-family:var(--sans);font-size:clamp(1.8rem,4vw,2.6rem);font-weight:700;margin-bottom:3rem;letter-spacing:-0.02em}
@@ -164,29 +194,26 @@ section{padding:6rem 3rem;position:relative}
 .about-text p{color:var(--muted);margin-bottom:1rem;font-size:0.88rem}
 .about-text p strong{color:var(--text)}
 .about-stats{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(0,229,255,0.08);border:1px solid rgba(0,229,255,0.08)}
-.stat{background:var(--navy2);padding:1.5rem;transition:background 0.25s}
-.stat:hover{background:var(--navy3)}
+.stat{padding:1.5rem;}
+
 .stat-val{font-family:var(--sans);font-size:2rem;font-weight:800;color:var(--cyan);display:block}
 .stat-label{font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em}
 
 /* SKILLS */
 #skills{background:var(--navy)}
 .skills-columns{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}
-.skill-group{border:1px solid rgba(0,229,255,0.08);padding:1.75rem;position:relative;overflow:hidden;transition:border-color 0.3s,transform 0.35s cubic-bezier(0.16,1,0.3,1)}
-.skill-group::before{content:'';position:absolute;top:0;left:0;width:2px;height:0;background:var(--cyan);transition:height 0.45s cubic-bezier(0.16,1,0.3,1)}
-.skill-group:hover{border-color:rgba(0,229,255,0.25);transform:translateY(-4px)}
+.skill-group{padding:1.75rem;overflow:hidden;}
+.skill-group::before{content:'';position:absolute;top:0;left:0;width:2px;height:0;background:var(--cyan);transition:height 0.45s cubic-bezier(0.16,1,0.3,1);z-index: 5;}
+.skill-group:hover{transform:translateY(-4px)}
 .skill-group:hover::before{height:100%}
 .sg-title{font-size:0.72rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--cyan);margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem}
-.skill-tag{display:inline-block;font-size:0.72rem;color:var(--muted);border:1px solid rgba(90,129,153,0.3);padding:0.2rem 0.6rem;margin:0.2rem 0.15rem;border-radius:2px;transition:border-color 0.2s,color 0.2s,transform 0.2s;cursor:default}
+.skill-tag{display:inline-block;font-size:0.72rem;color:var(--muted);border:1px solid rgba(90,129,153,0.3);padding:0.2rem 0.6rem;margin:0.2rem 0.15rem;border-radius:2px;transition:border-color 0.2s,color 0.2s,transform 0.2s;cursor:default; position: relative; z-index: 3;}
 .skill-tag:hover{border-color:var(--cyan2);color:var(--cyan);transform:translateY(-1px)}
 
 /* PROJECTS */
 #projects{background:var(--navy2)}
 .projects-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.5rem}
-.project-card{border:1px solid rgba(0,229,255,0.08);padding:2rem;position:relative;overflow:hidden;cursor:default;transition:border-color 0.35s,transform 0.4s cubic-bezier(0.16,1,0.3,1)}
-.project-card::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,229,255,0.04) 0%,transparent 60%);opacity:0;transition:opacity 0.35s}
-.project-card:hover{border-color:rgba(0,229,255,0.3);transform:translateY(-5px)}
-.project-card:hover::after{opacity:1}
+.project-card{padding:2rem;overflow:hidden;cursor:default;}
 .proj-num{font-size:0.68rem;color:var(--muted);letter-spacing:0.1em;margin-bottom:1rem}
 .proj-title{font-family:var(--sans);font-size:1.2rem;font-weight:700;margin-bottom:0.75rem;color:var(--text)}
 .proj-desc{font-size:0.82rem;color:var(--muted);line-height:1.7;margin-bottom:1.25rem}
@@ -198,8 +225,8 @@ section{padding:6rem 3rem;position:relative}
 .contact-inner{max-width:620px}
 .contact-intro{font-size:0.88rem;color:var(--muted);margin-bottom:2.5rem}
 .contact-links{display:flex;flex-direction:column;gap:1px}
-.contact-link{display:flex;align-items:center;justify-content:space-between;padding:1.25rem 1.5rem;border:1px solid rgba(0,229,255,0.08);color:var(--text);text-decoration:none;font-size:0.88rem;transition:border-color 0.25s,background 0.25s,padding-left 0.35s cubic-bezier(0.16,1,0.3,1),color 0.25s}
-.contact-link:hover{border-color:rgba(0,229,255,0.3);background:rgba(0,229,255,0.05);padding-left:2rem;color:var(--cyan)}
+.contact-link{display:flex;align-items:center;justify-content:space-between;padding:1.25rem 1.5rem;color:var(--text);text-decoration:none;font-size:0.88rem;transition:border-color 0.25s,background 0.25s,padding-left 0.35s cubic-bezier(0.16,1,0.3,1),color 0.25s}
+.contact-link:hover{padding-left:2rem;color:var(--cyan)}
 .contact-link span{color:var(--muted);font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase}
 
 footer{border-top:1px solid rgba(0,229,255,0.06);padding:2rem 3rem;display:flex;justify-content:space-between;align-items:center;font-size:0.72rem;color:var(--muted);letter-spacing:0.05em}
@@ -213,278 +240,246 @@ footer{border-top:1px solid rgba(0,229,255,0.06);padding:2rem 3rem;display:flex;
 .reveal-clip.visible{clip-path:inset(0 0% 0 0)}
 .d1{transition-delay:0.08s}.d2{transition-delay:0.16s}.d3{transition-delay:0.24s}.d4{transition-delay:0.32s}
 
-.lock-scroll {
-  overflow: hidden !important;
-}
+.lock-scroll {overflow: hidden !important;}
 
 @media(max-width:768px){
-  nav{padding:1rem 1.25rem}
-  section,#hero{padding:4rem 1.25rem}
-  .about-grid,.skills-columns,.projects-grid{grid-template-columns:1fr}
-  footer{flex-direction:column;gap:0.5rem;text-align:center}
+    nav{padding:1rem 1.25rem}
+    section,#hero{padding:4rem 1.25rem}
+    .about-grid,.skills-columns,.projects-grid{grid-template-columns:1fr}
+    footer{flex-direction:column;gap:0.5rem;text-align:center}
 }
-</style>
-</head>
-<body>
+	</style>
+    </head>
+    <body>
 
-<!-- INTRO BG — fades out independently -->
-<div id="intro-bg">
-  <div id="intro-lines">
-    <span class="line"><span class="dim">$</span> <span class="ok">▶</span> init.d/startup</span>
-    <span class="line"><span class="dim">$</span> <span class="ok">▶</span> using Hyptonics 2.4.1</span>
-    <span class="line"><span class="dim">$</span> <span class="ok">▶</span> loading $HOME</span>
-    <span class="line"><span class="dim">&nbsp;&nbsp;</span> <span class="ok">✓</span> environment ready</span>
-  </div>
-  <div id="intro-bar"></div>
-</div>
+	<div id="intro-bg">
+	    <div id="intro-lines">
+		<span class="line"><span class="dim">$</span> <span class="ok">▶</span> init.d/startup</span>
+		<span class="line"><span class="dim">$</span> <span class="ok">▶</span> using Hyptonics 2.4.1</span>
+		<span class="line"><span class="dim">$</span> <span class="ok">▶</span> loading $HOME</span>
+		<span class="line"><span class="dim">&nbsp;&nbsp;</span> <span class="ok">✓</span> environment ready</span>
+	    </div>
+	    <div id="intro-bar"></div>
+	</div>
 
-<!-- THE ONE NAME — position set inline so removeAttribute('style') cleanly resets it -->
-<div id="the-name"
-  style="position:fixed;z-index:1001;left:3rem;bottom:28vh;white-space:nowrap;will-change:transform;">
-  <span id="typed-span"></span><span class="typed-cursor"></span>
-  <span class="glitch-a" aria-hidden="true"></span>
-  <span class="glitch-b" aria-hidden="true"></span>
-</div>
+	<div id="the-name"
+	     style="position:fixed;z-index:1001;left:3rem;bottom:28vh;white-space:nowrap;will-change:transform;">
+	    <span id="typed-span"></span><span class="typed-cursor"></span>
+	    <span class="glitch-a" aria-hidden="true"></span>
+	    <span class="glitch-b" aria-hidden="true"></span>
+	</div>
 
-<!-- MAIN -->
-<div id="main">
-<nav id="nav">
-  <a class="nav-logo" href="#hero"><span>/home/</span> eiedouno</a>
-  <ul>
-    <li><a href="#about">about</a></li>
-    <li><a href="#skills">skills</a></li>
-    <li><a href="#projects">projects</a></li>
-    <li><a href="#contact">contact</a></li>
-  </ul>
-</nav>
+	<div id="main">
+	    <nav id="nav">
+		<a class="nav-logo" href="#hero"><span>/home/</span> eiedouno</a>
+		<ul>
+		    <li><a href="#about">about</a></li>
+		    <li><a href="#skills">skills</a></li>
+		    <li><a href="#projects">projects</a></li>
+		    <li><a href="#contact">contact</a></li>
+		</ul>
+	    </nav>
 
-<section id="hero">
-  <div class="hero-grid-bg"></div>
-  <div class="hero-glow"></div>
-  <div class="hero-content">
-    <div class="hero-tag">Systems Programmer</div>
-    <!-- Invisible placeholder — same font metrics as #the-name so it reserves the exact space -->
-    <div id="hero-slot">eiedouno<span class="accent">.</span></div>
-    <p class="hero-desc">Deep internals. Windows &amp; Linux. Scripting that actually does things.</p>
-    <a href="#about" class="hero-cta">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7l6 6 6-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      explore
-    </a>
-  </div>
-  <div class="hero-scroll"><div class="scroll-line"></div>scroll</div>
-</section>
+	    <section id="hero">
+		<div class="hero-grid-bg"></div>
+		<div class="hero-glow"></div>
+		<div class="hero-content">
+		    <div class="hero-tag">Systems Programmer</div>
+		    <div id="hero-slot">eiedouno<span class="accent">.</span></div>
+		    <p class="hero-desc">Deep internals. Windows &amp; Linux. Scripting that actually does things.</p>
+		    <a href="#about" class="hero-cta">
+			<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7l6 6 6-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+			explore
+		    </a>
+		</div>
+		<div class="hero-scroll"><div class="scroll-line"></div>scroll</div>
+	    </section>
 
-<section id="about">
-  <div class="section-label reveal reveal-clip">01 / about</div>
-  <h2 class="section-title reveal">Who I am</h2>
-  <div class="about-grid">
-    <div class="about-text reveal reveal-left d1">
-      <p>I operate below the surface. While most people interact with abstractions, I work where the kernel meets the hardware — reading registry hives, tracing syscalls, patching loaders.</p>
-      <p>On Windows, I navigate <strong>useful registry keys, weird system32 quirks</strong>, and know how to bend the shell to my will. On Linux, I live in <strong>systemd units, GRUB configs, shell RC files &amp; scripts</strong>, and know how to <strong>use the terminal on an exceptional level</strong>.</p>
-      <p>Scripting is a native language: <strong>PowerShell, Zsh/Bash, and cmd.exe</strong> — for real automation, not tutorials.</p>
-    </div>
-    <div class="about-stats reveal d2">
-      <div class="stat"><span class="stat-val">Win</span><span class="stat-label">Registry · gpedit.msc · taskschd.msc · Sysinternals</span></div>
-      <div class="stat"><span class="stat-val">Linux</span><span class="stat-label">systemd · GRUB · Ricing · Arch</span></div>
-      <div class="stat"><span class="stat-val">Sh</span><span class="stat-label">pwsh · zsh · bash · cmd</span></div>
-      <div class="stat"><span class="stat-val">Admin</span><span class="stat-label">Kernel · Internals · /root</span></div>
-    </div>
-  </div>
-</section>
+	    <section id="about">
+		<div class="section-label reveal reveal-clip">01 / about</div>
+		<h2 class="section-title reveal">Who I am</h2>
+		<div class="about-grid">
+		    <div class="about-text reveal reveal-left d1">
+			<p>I operate below the surface. While most people interact with abstractions, I work where the kernel meets the hardware — reading registry hives, tracing syscalls, patching loaders.</p>
+			<p>On Windows, I navigate <strong>useful registry keys, weird system32 quirks</strong>, and know how to bend the shell to my will. On Linux, I live in <strong>systemd units, GRUB configs, shell RC files &amp; scripts</strong>, and know how to <strong>use the terminal on an exceptional level</strong>.</p>
+			<p>Scripting is a native language: <strong>PowerShell, Zsh/Bash, and cmd.exe</strong> — for real automation, not tutorials.</p>
+		    </div>
+		    <div class="about-stats reveal d2">
+			<div class="stat"><span class="stat-val">Win</span><span class="stat-label">Registry · gpedit.msc · taskschd.msc · Sysinternals</span></div>
+			<div class="stat"><span class="stat-val">Linux</span><span class="stat-label">systemd · GRUB · Ricing · Arch</span></div>
+			<div class="stat"><span class="stat-val">Sh</span><span class="stat-label">pwsh · zsh · bash · cmd</span></div>
+			<div class="stat"><span class="stat-val">Admin</span><span class="stat-label">Kernel · Internals · /root</span></div>
+		    </div>
+		</div>
+	    </section>
 
-<section id="skills">
-  <div class="section-label reveal reveal-clip">02 / skills</div>
-  <h2 class="section-title reveal">Technical stack</h2>
-  <div class="skills-columns">
-    <div class="skill-group reveal d1">
-      <div class="sg-title">&#x25A0; Windows Internals</div>
-      <div><span class="skill-tag">Registry keys</span><span class="skill-tag">tbd</span><span class="skill-tag">WinSxS</span><span class="skill-tag">Sysinternals</span><span class="skill-tag">Shell replacement</span><span class="skill-tag">Win32 API</span><span class="skill-tag">NTFS streams</span><span class="skill-tag">Boot config</span></div>
-    </div>
-    <div class="skill-group reveal d2">
-      <div class="sg-title">&#x25A0; Linux Internals</div>
-      <div><span class="skill-tag">systemd</span><span class="skill-tag">GRUB</span><span class="skill-tag">agetty</span><span class="skill-tag">journalctl</span><span class="skill-tag">SysRq</span><span class="skill-tag">Wine / Proton</span><span class="skill-tag">Arch Linux</span><span class="skill-tag">VT sequences</span></div>
-    </div>
-    <div class="skill-group reveal d3">
-      <div class="sg-title">&#x25A0; Scripting &amp; Shell</div>
-      <div><span class="skill-tag">PowerShell</span><span class="skill-tag">Zsh</span><span class="skill-tag">Bash</span><span class="skill-tag">cmd.exe</span><span class="skill-tag">Advanced pipelines</span><span class="skill-tag">Automation</span><span class="skill-tag">Dotfiles</span><span class="skill-tag">Task scheduling</span></div>
-    </div>
-  </div>
-</section>
+	    <section id="skills">
+		<div class="section-label reveal reveal-clip">02 / skills</div>
+		<h2 class="section-title reveal">Technical stack</h2>
+		<div class="skills-columns">
+		    <div class="skill-group reveal d1">
+			<div class="sg-title">&#x25A0; Windows Internals</div>
+			<div><span class="skill-tag">Registry keys</span><span class="skill-tag">Explorer mods</span><span class="skill-tag">Background scripts</span><span class="skill-tag">Sysinternals</span><span class="skill-tag">Shell replacement</span><span class="skill-tag">Win32 API</span><span class="skill-tag">Kiosk</span><span class="skill-tag">Boot config</span></div>
+		    </div>
+		    <div class="skill-group reveal d2">
+			<div class="sg-title">&#x25A0; Linux Internals</div>
+			<div><span class="skill-tag">systemd</span><span class="skill-tag">GRUB</span><span class="skill-tag">agetty</span><span class="skill-tag">journalctl</span><span class="skill-tag">SysRq Mods</span><span class="skill-tag">Wine / Proton</span><span class="skill-tag">Arch Linux</span><span class="skill-tag">VT sequences</span><span class="skill-tag">Docker</span><span class="skill-tag">/srv</span></div>
+		    </div>
+		    <div class="skill-group reveal d3">
+			<div class="sg-title">&#x25A0; Scripting &amp; Shell</div>
+			<div><span class="skill-tag">PowerShell</span><span class="skill-tag">Zsh</span><span class="skill-tag">Bash</span><span class="skill-tag">cmd.exe</span><span class="skill-tag">Advanced pipelines</span><span class="skill-tag">Automation</span><span class="skill-tag">Dotfiles</span><span class="skill-tag">FIFO</span><span class="skill-tag">coproc</span></div>
+		    </div>
+		</div>
+	    </section>
 
-<section id="projects">
-  <div class="section-label reveal reveal-clip">03 / projects</div>
-  <h2 class="section-title reveal">Selected work</h2>
-  <div class="projects-grid">
-    <div class="project-card reveal d1">
-      <div class="proj-num">001</div>
-      <div class="proj-title">Registry Archaeologist</div>
-      <p class="proj-desc">A PowerShell toolkit for mapping undocumented Windows Registry keys across OS versions — including hidden hives not mounted by default.</p>
-      <div class="proj-tags"><span class="proj-tag">PowerShell</span><span class="proj-tag">Win32</span><span class="proj-tag">Registry</span></div>
-    </div>
-    <div class="project-card reveal d2">
-      <div class="proj-num">002</div>
-      <div class="proj-title">Custom Shell Bootstrap</div>
-      <p class="proj-desc">Full replacement of the Windows explorer shell with a custom loader — managing Winlogon hooks, environment inheritance, and session lifecycle.</p>
-      <div class="proj-tags"><span class="proj-tag">C</span><span class="proj-tag">Winlogon</span><span class="proj-tag">Shell</span></div>
-    </div>
-    <div class="project-card reveal d3">
-      <div class="proj-num">003</div>
-      <div class="proj-title">Minimal Arch Provisioner</div>
-      <p class="proj-desc">Bash script that provisions a hardened Arch Linux environment from scratch — GRUB, systemd unit hardening, agetty autologin, and a custom init sequence.</p>
-      <div class="proj-tags"><span class="proj-tag">Bash</span><span class="proj-tag">systemd</span><span class="proj-tag">GRUB</span><span class="proj-tag">Arch</span></div>
-    </div>
-    <div class="project-card reveal d4">
-      <div class="proj-num">004</div>
-      <div class="proj-title">Proton Layer Patcher</div>
-      <p class="proj-desc">Zsh toolchain to patch Proton/Wine prefixes at the NTDLL shim level, enabling non-Steam Windows titles to run with custom DLL overrides on Linux.</p>
-      <div class="proj-tags"><span class="proj-tag">Zsh</span><span class="proj-tag">Wine</span><span class="proj-tag">Proton</span><span class="proj-tag">ELF</span></div>
-    </div>
-  </div>
-</section>
+	    <section id="projects">
+		<div class="section-label reveal reveal-clip">03 / projects</div>
+		<h2 class="section-title reveal">Selected work</h2>
+		<div class="projects-grid">
+		    <div class="project-card reveal d1">
+			<div class="proj-num">001</div>
+			<div class="proj-title">Shuttle</div>
+			<p class="proj-desc">An open-source over-engineered package manager for shell scripts. Install, remove, and manage different script packages on your system with an apt like install system.</p>
+			<div class="proj-tags"><span class="proj-tag">Git</span><span class="proj-tag">Bash</span><span class="proj-tag">cli</span><span class="proj-tag">Open-Source</span></div>
+		    </div>
+		    <div class="project-card reveal d2">
+			<div class="proj-num">002</div>
+			<div class="proj-title">VirOS</div>
+			<p class="proj-desc">An in-development joke OS built by my friends and myself.</p>
+			<div class="proj-tags"><span class="proj-tag">Ubuntu</span><span class="proj-tag">Shell</span><span class="proj-tag">Open-Source</span></div>
+		    </div>
+		</div>
+	    </section>
 
-<section id="contact">
-  <div class="section-label reveal reveal-clip">04 / contact</div>
-  <h2 class="section-title reveal">Get in touch</h2>
-  <div class="contact-inner">
-    <p class="contact-intro reveal d1">Interested in collaboration, systems work, or just want to talk internals? Reach out below.</p>
-    <div class="contact-links">
-      <a href="mailto:hello@eiedouno.dev" class="contact-link reveal d2">hello@eiedouno.dev<span>email ↗</span></a>
-      <a href="https://github.com/eiedouno" class="contact-link reveal d3" target="_blank">github.com/eiedouno<span>github ↗</span></a>
-      <a href="https://linkedin.com/in/eiedouno" class="contact-link reveal d4" target="_blank">linkedin.com/in/eiedouno<span>linkedin ↗</span></a>
-    </div>
-  </div>
-</section>
+	    <section id="contact">
+		<div class="section-label reveal reveal-clip">04 / contact</div>
+		<h2 class="section-title reveal">Get in touch</h2>
+		<div class="contact-inner">
+		    <p class="contact-intro reveal d1">Interested in collaboration, systems work, or just want to talk internals? Reach out below.</p>
+		    <div class="contact-links">
+			<a href="mailto:hello@eiedouno.dev" class="contact-link reveal d2">hello@eiedouno.dev<span>email ↗</span></a>
+			<a href="https://github.com/eiedouno" class="contact-link reveal d3" target="_blank">github.com/eiedouno<span>github ↗</span></a>
+			<a href="https://linkedin.com/in/eiedouno" class="contact-link reveal d4" target="_blank">linkedin.com/in/eiedouno<span>linkedin ↗</span></a>
+		    </div>
+		</div>
+	    </section>
 
-<footer>
-  <span>eiedouno &mdash; systems programmer</span>
-  <span>built with precision &middot; <span style="color:var(--cyan)">2025</span></span>
-</footer>
-</div>
+	    <footer>
+		<span>eiedouno &mdash; systems programmer</span>
+		<span>built with precision &middot; <span style="color:var(--cyan)">2025</span></span>
+	    </footer>
+	</div>
 
-<script>
-if (history.scrollRestoration) {
-    history.scrollRestoration = 'manual';
-}
-window.scrollTo(0, 0);
+	<script>
+        /* ── BORDER HIGHLIGHT LOGIC ── */
+        const highlightElements = document.querySelectorAll('.skill-group, .project-card, .contact-link, .stat');
 
-const theNameEl  = document.getElementById('the-name');
-const typedSpan  = document.getElementById('typed-span');
-const introBg    = document.getElementById('intro-bg');
-const introLines = document.querySelectorAll('#intro-lines .line');
-const introBar   = document.getElementById('intro-bar');
-const FULL       = 'eiedouno';
+        window.addEventListener('mousemove', (e) => {
+            highlightElements.forEach(el => {
+                const rect = el.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
 
-/* 1 — Boot lines */
-function showLines(i) {
-  if (i >= introLines.length) { setTimeout(typeName, 1500); return; }
-  introLines[i].classList.add('show');
-  setTimeout(() => showLines(i + 1), 400);
-}
+                el.style.setProperty('--mouse-x', `${x}px`);
+                el.style.setProperty('--mouse-y', `${y}px`);
+            });
+        });
 
-/* 2 — Typewriter on the shared element */
-function typeName() {
-  let i = 0;
-  const t = setInterval(() => {
-    typedSpan.textContent += FULL[i++];
-    if (i < FULL.length) return;
-    clearInterval(t);
-    // Insert dot before cursor
-    const cursor  = theNameEl.querySelector('.typed-cursor');
-    const dot     = Object.assign(document.createElement('span'), { className:'accent', textContent:'.' });
-    theNameEl.insertBefore(dot, cursor);
-    // Prime the glitch clones with the final text
-    theNameEl.querySelector('.glitch-a').textContent = 'eiedouno.';
-    theNameEl.querySelector('.glitch-b').textContent = 'eiedouno.';
-    setTimeout(fillBar, 400);
-  }, 72);
-}
+	    if (history.scrollRestoration) {
+		history.scrollRestoration = 'manual';
+	    }
+	    window.scrollTo(0, 0);
 
-/* 3 — Progress bar */
-function fillBar() {
-  let pct = 0;
-  const t = setInterval(() => {
-    pct += 3;
-    introBar.style.width = Math.min(pct, 100) + '%';
-    if (pct < 100) return;
-    clearInterval(t);
-    setTimeout(flip, 200);
-  }, 10);
-}
+	    const theNameEl  = document.getElementById('the-name');
+	    const typedSpan  = document.getElementById('typed-span');
+	    const introBg    = document.getElementById('intro-bg');
+	    const introLines = document.querySelectorAll('#intro-lines .line');
+	    const introBar   = document.getElementById('intro-bar');
+	    const FULL       = 'eiedouno';
 
-/* 4 — FLIP: measure → reveal main → animate → swap into DOM */
-function flip() {
-  window.scrollTo(0, 0);
+	    function showLines(i) {
+		if (i >= introLines.length) { setTimeout(typeName, 1500); return; }
+		introLines[i].classList.add('show');
+		setTimeout(() => showLines(i + 1), 400);
+	    }
 
-  // A. Measure the name's current on-screen rect (while fixed in intro)
-  const from = theNameEl.getBoundingClientRect();
+	    function typeName() {
+		let i = 0;
+		const t = setInterval(() => {
+		    typedSpan.textContent += FULL[i++];
+		    if (i < FULL.length) return;
+		    clearInterval(t);
+		    const cursor  = theNameEl.querySelector('.typed-cursor');
+		    const dot     = Object.assign(document.createElement('span'), { className:'accent', textContent:'.' });
+		    theNameEl.insertBefore(dot, cursor);
+		    theNameEl.querySelector('.glitch-a').textContent = 'eiedouno.';
+		    theNameEl.querySelector('.glitch-b').textContent = 'eiedouno.';
+		    setTimeout(fillBar, 400);
+		}, 72);
+	    }
 
-  // B. Measure the hero slot's rect — layout exists even when #main is opacity:0
-  const slot = document.getElementById('hero-slot');
-  const to   = slot.getBoundingClientRect();
+	    function fillBar() {
+		let pct = 0;
+		const t = setInterval(() => {
+		    pct += 3;
+		    introBar.style.width = Math.min(pct, 100) + '%';
+		    if (pct < 100) return;
+		    clearInterval(t);
+		    setTimeout(flip, 200);
+		}, 10);
+	    }
 
-  // C. Reveal the main content behind the fading intro (no transition on #main itself)
-  document.getElementById('main').classList.add('ready');
+	    function flip() {
+		window.scrollTo(0, 0);
+		const from = theNameEl.getBoundingClientRect();
+		const slot = document.getElementById('hero-slot');
+		const to   = slot.getBoundingClientRect();
 
-  // D. Fade out the intro background independently
-  introBg.style.transition = 'opacity 0.8s ease';
-  introBg.style.opacity    = '0';
+		document.getElementById('main').classList.add('ready');
+		introBg.style.transition = 'opacity 0.8s ease';
+		introBg.style.opacity    = '0';
 
-  // E. Fade out the blinking cursor
-  const cursor = theNameEl.querySelector('.typed-cursor');
-  if (cursor) { cursor.style.transition = 'opacity 0.2s'; cursor.style.opacity = '0'; }
+		const cursor = theNameEl.querySelector('.typed-cursor');
+		if (cursor) { cursor.style.transition = 'opacity 0.2s'; cursor.style.opacity = '0'; }
 
-  // F. Apply the FLIP transform — moves the element from its current fixed position
-  //    to exactly where the hero slot is, using ease-in-out
-  const dx = to.left - from.left;
-  const dy = to.top  - from.top;
-  theNameEl.style.transition = 'transform 1s cubic-bezier(0.76, 0, 0.24, 1)';
-  theNameEl.style.transform  = `translate(${dx}px, ${dy}px)`;
+		const dx = to.left - from.left;
+		const dy = to.top  - from.top;
+		theNameEl.style.transition = 'transform 1s cubic-bezier(0.76, 0, 0.24, 1)';
+		theNameEl.style.transform  = `translate(${dx}px, ${dy}px)`;
 
-  // G. After the flight lands, atomically swap the element into the hero DOM
-  setTimeout(() => {
-    // Disable any further transitions before touching position
-    theNameEl.style.transition = 'none';
-    // Clear ALL inline styles (position:fixed, z-index, left, bottom, transform, etc.)
-    // CSS #the-name only has font properties, so the element becomes unstyled positionally
-    theNameEl.removeAttribute('style');
-    // Apply in-hero mode (position:relative + margin)
-    theNameEl.classList.add('in-hero');
-    // Replace the invisible slot with the real element — single paint, no flash
-    slot.parentNode.replaceChild(theNameEl, slot);
-    // Unlock scrolling
-    document.body.classList.remove('lock-scroll');
-    // Remove the dead intro overlay
-    introBg.remove();
-    if (cursor) cursor.remove();
-    // Cascade the remaining hero reveals
-    revealHero();
-  }, 1010);
-}
+		setTimeout(() => {
+		    theNameEl.style.transition = 'none';
+		    theNameEl.removeAttribute('style');
+		    theNameEl.classList.add('in-hero');
+		    slot.parentNode.replaceChild(theNameEl, slot);
+		    document.body.classList.remove('lock-scroll');
+		    introBg.remove();
+		    if (cursor) cursor.remove();
+		    revealHero();
+		}, 1010);
+	    }
 
-/* 5 — Reveal hero chrome after name lands */
-function revealHero() {
-  document.querySelector('.hero-grid-bg').classList.add('show');
-  document.querySelector('.hero-glow').classList.add('show');
-  document.querySelector('.hero-tag').classList.add('show');
-  setTimeout(() => {
-    document.querySelector('.hero-desc').classList.add('show');
-    document.querySelector('.hero-cta').classList.add('show');
-    document.querySelector('.hero-scroll').classList.add('show');
-    document.getElementById('nav').classList.add('show');
-  }, 280);
-}
+	    function revealHero() {
+		document.querySelector('.hero-grid-bg').classList.add('show');
+		document.querySelector('.hero-glow').classList.add('show');
+		document.querySelector('.hero-tag').classList.add('show');
+		setTimeout(() => {
+		    document.querySelector('.hero-desc').classList.add('show');
+		    document.querySelector('.hero-cta').classList.add('show');
+		    document.querySelector('.hero-scroll').classList.add('show');
+		    document.getElementById('nav').classList.add('show');
+		}, 280);
+	    }
 
-/* Kick off */
-setTimeout(() => {
-  document.body.classList.add('lock-scroll'); // Lock scroll when animation starts
-  showLines(0);
-}, 350);
+	    setTimeout(() => {
+		document.body.classList.add('lock-scroll');
+		showLines(0);
+	    }, 350);
 
-/* Scroll reveal */
-const io = new IntersectionObserver(entries => {
-  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
-}, { threshold: 0.1 });
-document.querySelectorAll('.reveal,.reveal-left,.reveal-clip').forEach(el => io.observe(el));
-</script>
-</body>
+	    const io = new IntersectionObserver(entries => {
+		entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
+	    }, { threshold: 0.1 });
+	    document.querySelectorAll('.reveal,.reveal-left,.reveal-clip').forEach(el => io.observe(el));
+	</script>
+    </body>
 </html>
